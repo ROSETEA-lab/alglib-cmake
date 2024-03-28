@@ -52,7 +52,7 @@ endif()
 
 include(ExternalProject)
 
-set(ALGLIB_VERSION_FILE "3.14.0" CACHE STRING "Version of ALGLIB.")
+set(ALGLIB_VERSION_FILE "4.01.0" CACHE STRING "Version of ALGLIB.")
 string(REPLACE "\"" "" ALGLIB_VERSION ${ALGLIB_VERSION_FILE})
 set(ALGLIB_FILE alglib-${ALGLIB_VERSION_FILE}.cpp.gpl.tgz)
 set(ALGLIB_URI http://www.alglib.net/translator/re/${ALGLIB_FILE})
@@ -76,8 +76,8 @@ if(NOT rv EQUAL 0)
   message(FATAL_ERROR "Error while extracting '${ALGLIB_FULL_PATH}'.")
 endif()
 
-file(GLOB ALGLIB_HEADERS "${UNZIP_DIR}/cpp/src/*.h")
-file(GLOB ALGLIB_SOURCES "${UNZIP_DIR}/cpp/src/*.cpp")
+file(GLOB ALGLIB_HEADERS "${UNZIP_DIR}/alglib-cpp/src/*.h")
+file(GLOB ALGLIB_SOURCES "${UNZIP_DIR}/alglib-cpp/src/*.cpp")
 
 add_library(${libraryname} ${ALGLIB_HEADERS} ${ALGLIB_SOURCES})
 set_property(TARGET ${libraryname} PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -88,11 +88,11 @@ if(MSVC OR MSYS OR MINGW)
     set(COMPILER_OPTIONS ${COMPILER_OPTIONS} /Ox /DAE_OS=AE_WINDOWS)
     execute_process( COMMAND wmic CPU get Name OUTPUT_VARIABLE CPU_NAME)
     if (${CPU_NAME} MATCHES "Intel")
-        set(COMPILER_OPTIONS ${COMPILER_OPTIONS} /DAE_CPU=AE_INTEL)
+        set(COMPILER_OPTIONS ${COMPILER_OPTIONS} /DAE_CPU=AE_INTEL /arch:AVX2)
     endif()
 
 elseif(UNIX)
-    set(COMPILER_OPTIONS ${COMPILER_OPTIONS} -O3 -DAE_OS=AE_POSIX -pthread)
+    set(COMPILER_OPTIONS ${COMPILER_OPTIONS} -O3 -DAE_OS=AE_POSIX -mavx2 -mfma -pthread)
     execute_process( COMMAND uname -m OUTPUT_VARIABLE ARCHITECTURE)
 
     if (${ARCHITECTURE} MATCHES "x86_64")
